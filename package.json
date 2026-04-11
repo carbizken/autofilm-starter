@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "mkdir -p dist && cp -r frontend/* dist/ && node -e \"const h=require('http'),f=require('fs'),p=require('path');const port=process.argv.find((_,i,a)=>a[i-1]==='--port')||8080;h.createServer((q,r)=>{let fp=p.join('dist',q.url==='/'?'index.html':q.url);if(!f.existsSync(fp))fp=p.join('dist','index.html');r.end(f.readFileSync(fp))}).listen(port)\"",
+    "dev": "mkdir -p dist && cp -r frontend/* dist/ && node serve.cjs",
     "build": "mkdir -p dist && cp -r frontend/* dist/"
   },
   "dependencies": {
