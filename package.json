@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "echo 'Static HTML project - open frontend/*.html'",
-    "build": "echo 'No build needed'"
+    "dev": "mkdir -p dist && cp -r frontend/* dist/ && node serve.cjs",
+    "build": "mkdir -p dist && cp -r frontend/* dist/"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4"
