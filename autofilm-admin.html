@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AutoFilm Admin — Internal Operations</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&display=swap">
 <style>
@@ -535,21 +536,44 @@ body{font-family:var(--ff);background:var(--bg);color:var(--t1);-webkit-font-smo
 
 <div class="toast" id="toastEl"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// LOGIN
-var CREDS=[{e:'ken@autofilm.io',p:'autofilm2026'},{e:'admin@autofilm.io',p:'autofilm2026'}];
-function login(){
+<script>
+// SUPABASE AUTH
+var _sb = window.supabase.createClient(
+  'https://hciluddranlphtekspzk.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhjaWx1ZGRyYW5scGh0ZWtzcHprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MjMyMTYsImV4cCI6MjA5MTQ5OTIxNn0.asvGVGShG4iqg65eie8Mk-ilx3kHKjr1lvgS7dKDRfs'
+);
+
+// Check existing session on load
+_sb.auth.onAuthStateChange(function(event, session) {
+  if (session) {
+    // Check admin role
+    _sb.rpc('has_role', { _user_id: session.user.id, _role: 'admin' }).then(function(res) {
+      if (res.data === true) {
+        document.getElementById('lg').style.display='none';
+        renderDash(); renderFlags();
+      } else {
+        document.getElementById('lerr').textContent = 'Access denied. Admin role required.';
+        document.getElementById('lerr').style.display='block';
+        _sb.auth.signOut();
+      }
+    });
+  }
+});
+_sb.auth.getSession();
+
+async function login(){
   var e=(document.getElementById('le').value||'').trim().toLowerCase();
   var p=(document.getElementById('lp').value||'').trim();
-  if(CREDS.some(function(c){return c.e===e&&c.p===p;})){
-    document.getElementById('lg').style.display='none';
-    renderDash(); renderFlags();
-    toast('Welcome back, Ken 👋');
-  } else {
+  document.getElementById('lerr').style.display='none';
+  if(!e||!p){ document.getElementById('lerr').textContent='Email and password required.'; document.getElementById('lerr').style.display='block'; return; }
+  var res = await _sb.auth.signInWithPassword({ email: e, password: p });
+  if(res.error){
+    document.getElementById('lerr').textContent = res.error.message;
     document.getElementById('lerr').style.display='block';
     document.getElementById('lp').value='';
     document.getElementById('lp').focus();
   }
+  // onAuthStateChange handles the rest
 }
 document.getElementById('le').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('lp').focus();});
 
