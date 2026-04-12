@@ -8,6 +8,8 @@ import pingRoute from './routes/ping.js';
 import aiRoute from './routes/ai.js';
 import eventRoute from './routes/event.js';
 import stripeRoute from './routes/stripe.js';
+import tenantRoute from './routes/tenant.js';
+import onboardRoute from './routes/onboard.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -43,6 +45,8 @@ app.use('/api/send', sendRoute);
 app.use('/v', pingRoute);
 app.use('/api/ai-script', aiRoute);
 app.use('/api/event', eventRoute);
+app.use('/api/tenant', tenantRoute);
+app.use('/api/onboard', onboardRoute);
 
 // 404
 app.use((req, res) => {

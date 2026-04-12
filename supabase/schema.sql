@@ -13,6 +13,33 @@ create table if not exists rooftops (
   plan             text not null default 'standard',  -- standard | branded | enterprise
   stripe_customer_id text,
   active           bool not null default true,
+
+  -- Tenant branding (populated during onboarding)
+  logo_url         text,                -- dealer logo image
+  brand_color      text default '#D94F00', -- primary hex color
+  secondary_color  text,                -- optional secondary hex
+  website          text,                -- e.g. harteautogroup.com
+  phone            text,                -- dealer main phone
+  email            text,                -- dealer contact email
+  address          text,                -- physical address
+  city             text,
+  state            text,
+  zip              text,
+
+  -- Product config
+  trade_url        text,                -- custom trade-in URL (e.g. hartecash.com/trade)
+  sms_greeting     text,                -- custom SMS opening line
+  sms_signature    text,                -- custom SMS signature
+
+  -- Onboarding
+  onboarded        bool not null default false,
+  onboarded_at     timestamptz,
+  onboard_step     int not null default 0,  -- tracks progress (0-5)
+
+  -- Cross-platform
+  source           text not null default 'autofilm',  -- autofilm | autocurb | manual
+  autocurb_tenant_id text,              -- linked autocurb.io tenant ID
+
   created_at       timestamptz not null default now()
 );
 
