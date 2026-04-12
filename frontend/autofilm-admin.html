@@ -536,19 +536,29 @@ body{font-family:var(--ff);background:var(--bg);color:var(--t1);-webkit-font-smo
 <div class="toast" id="toastEl"></div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// LOGIN
-var CREDS=[{e:'ken@autofilm.io',p:'autofilm2026'},{e:'admin@autofilm.io',p:'autofilm2026'}];
-function login(){
+// LOGIN — validates via Supabase Auth (no hardcoded credentials)
+var ADMIN_API=window.AUTOFILM_API||'https://api.autofilm.io';
+async function login(){
   var e=(document.getElementById('le').value||'').trim().toLowerCase();
   var p=(document.getElementById('lp').value||'').trim();
-  if(CREDS.some(function(c){return c.e===e&&c.p===p;})){
-    document.getElementById('lg').style.display='none';
-    renderDash(); renderFlags();
-    toast('Welcome back, Ken 👋');
-  } else {
+  if(!e||!p){document.getElementById('lerr').style.display='block';return;}
+  try{
+    var res=await fetch(ADMIN_API+'/api/admin-login',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:e,password:p})
+    });
+    if(res.ok){
+      document.getElementById('lg').style.display='none';
+      renderDash(); renderFlags();
+      toast('Welcome back 👋');
+    } else {
+      document.getElementById('lerr').style.display='block';
+      document.getElementById('lp').value='';
+      document.getElementById('lp').focus();
+    }
+  }catch(err){
     document.getElementById('lerr').style.display='block';
     document.getElementById('lp').value='';
-    document.getElementById('lp').focus();
   }
 }
 document.getElementById('le').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('lp').focus();});

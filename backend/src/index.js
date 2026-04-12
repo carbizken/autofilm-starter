@@ -6,6 +6,8 @@ import uploadRoute from './routes/upload.js';
 import sendRoute from './routes/send.js';
 import pingRoute from './routes/ping.js';
 import aiRoute from './routes/ai.js';
+import eventRoute from './routes/event.js';
+import stripeRoute from './routes/stripe.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -25,6 +27,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+// Stripe webhook needs raw body — mount BEFORE express.json()
+app.use('/api/stripe-webhook', stripeRoute);
+
 app.use(express.json());
 
 // Health check
@@ -37,6 +42,7 @@ app.use('/api/upload', uploadRoute);
 app.use('/api/send', sendRoute);
 app.use('/v', pingRoute);
 app.use('/api/ai-script', aiRoute);
+app.use('/api/event', eventRoute);
 
 // 404
 app.use((req, res) => {
@@ -45,8 +51,11 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error('[error]', err.message);
-  res.status(500).json({ error: err.message || 'Internal server error' });
+  console.error('[error]', err.stack || err.message);
+  const message = process.env.NODE_ENV === 'production'
+    ? 'Internal server error'
+    : err.message || 'Internal server error';
+  res.status(500).json({ error: message });
 });
 
 app.listen(PORT, () => {

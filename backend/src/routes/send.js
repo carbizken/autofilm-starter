@@ -21,6 +21,12 @@ router.post('/', async (req, res) => {
     if (!customer_name)   return res.status(400).json({ error: 'customer_name required' });
     if (!customer_phone)  return res.status(400).json({ error: 'customer_phone required' });
 
+    // Validate phone format (E.164: +1XXXXXXXXXX)
+    const phoneClean = customer_phone.replace(/[\s\-().]/g, '');
+    if (!/^\+1\d{10}$/.test(phoneClean)) {
+      return res.status(400).json({ error: 'customer_phone must be E.164 format (+1XXXXXXXXXX)' });
+    }
+
     // 1. Fetch video + rep info from Supabase
     const { data: videoRow, error: videoErr } = await supabase
       .from('videos')
@@ -63,22 +69,22 @@ router.post('/', async (req, res) => {
     const playerUrl = `${PLAYER_BASE}?${params.toString()}`;
     const shortUrl  = `${CF_WORKER_URL}/v/${short_code}`;
 
-    // 3. Store in Cloudflare KV
+    // 3. Store in Cloudflare KV FIRST (so link works before SMS arrives)
     await kvPut(`v_${short_code}`, playerUrl);
     console.log(`[send] KV stored: v_${short_code}`);
 
-    // 4. Send Twilio SMS
+    // 4. Send Twilio SMS (only after KV confirmed)
     const smsBody = vehicle
-      ? `Hey ${customer_name}, ${repDisplay} at ${dealerName} recorded a personal video about the ${vehicle} for you 🎬\n\nWatch it here: ${shortUrl}`
-      : `Hey ${customer_name}, ${repDisplay} at ${dealerName} recorded a personal video for you 🎬\n\nWatch it here: ${shortUrl}`;
+      ? `Hey ${customer_name}, ${repDisplay} at ${dealerName} recorded a personal video about the ${vehicle} for you 🎬\n\nWatch it here: ${shortUrl}\n\n— ${repDisplay} · ${dealerName}`
+      : `Hey ${customer_name}, ${repDisplay} at ${dealerName} recorded a personal video for you 🎬\n\nWatch it here: ${shortUrl}\n\n— ${repDisplay} · ${dealerName}`;
 
     const message = await twilioClient.messages.create({
       body: smsBody,
       from: TWILIO_FROM,
-      to: customer_phone,
+      to: phoneClean,
     });
 
-    console.log(`[send] SMS sent to ${customer_phone} — SID: ${message.sid}`);
+    console.log(`[send] SMS sent to ${phoneClean} — SID: ${message.sid}`);
 
     // 5. Update Supabase video record
     await supabase.from('videos').update({

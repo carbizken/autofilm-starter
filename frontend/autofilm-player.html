@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>A Personal Video for You</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap">
 <style>
 /* ═══════════════════════════════════════════════════════════════
    AutoFilm Customer Video Player  ·  v2
@@ -16,29 +17,29 @@
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  --canvas:    #FAFAF8;
-  --canvas2:   #F2F1EE;
-  --canvas3:   #E8E7E3;
-  --ink:       #1A1916;
-  --ink2:      #2E2D2A;
-  --ink3:      #4A4844;
-  --muted:     #8A8782;
-  --faint:     #C4C2BE;
-  --hairline:  rgba(26,25,22,.08);
-  --hairline2: rgba(26,25,22,.14);
+  --canvas:    #0a0a0d;
+  --canvas2:   #111116;
+  --canvas3:   #18181e;
+  --ink:       rgba(255,255,255,.95);
+  --ink2:      rgba(255,255,255,.85);
+  --ink3:      rgba(255,255,255,.65);
+  --muted:     rgba(255,255,255,.38);
+  --faint:     rgba(255,255,255,.18);
+  --hairline:  rgba(255,255,255,.06);
+  --hairline2: rgba(255,255,255,.12);
 
   /* Brand — set via JS from ?color= param */
-  --brand:     #B85C00;
-  --brand-lt:  rgba(184,92,0,.08);
-  --brand-md:  rgba(184,92,0,.18);
-  --brand-glow:rgba(184,92,0,.22);
+  --brand:     #D94F00;
+  --brand-lt:  rgba(217,79,0,.10);
+  --brand-md:  rgba(217,79,0,.22);
+  --brand-glow:rgba(217,79,0,.35);
 
-  --green:     #1A7A4A;
-  --green-lt:  rgba(26,122,74,.08);
+  --green:     #22c55e;
+  --green-lt:  rgba(34,197,94,.10);
 
-  --ff:  'DM Sans', -apple-system, sans-serif;
-  --fd:  'Playfair Display', Georgia, serif;
-  --fm:  'DM Mono', monospace;
+  --ff:  'Geist', -apple-system, sans-serif;
+  --fd:  'Geist', -apple-system, sans-serif;
+  --fm:  'Geist Mono', monospace;
 
   --r:   12px;
   --r2:  18px;
@@ -59,6 +60,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   min-height: 100dvh;
   overflow-x: hidden;
+  background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(217,79,0,.06) 0%, transparent 70%);
 }
 
 /* ── PAGE LOAD ANIMATION ───────────────────────── */
@@ -93,7 +95,7 @@ body {
 /* ── HEADER / REP BAR ──────────────────────────── */
 .header {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(250,250,248,.92);
+  background: rgba(10,10,13,.92);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border-bottom: 1px solid var(--hairline);
@@ -290,7 +292,7 @@ body {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   gap: 16px;
-  background: linear-gradient(160deg, #1A1916 0%, #2E2D2A 100%);
+  background: linear-gradient(160deg, var(--canvas) 0%, var(--canvas2) 100%);
 }
 
 .play-circle {
@@ -590,7 +592,7 @@ body {
 
 .footer-mark {
   width: 16px; height: 16px;
-  background: var(--ink);
+  background: var(--brand);
   border-radius: 4px;
   display: flex; align-items: center; justify-content: center;
 }
@@ -598,7 +600,7 @@ body {
 /* ── APPOINTMENT MODAL ─────────────────────────── */
 .modal-backdrop {
   position: fixed; inset: 0;
-  background: rgba(26,25,22,.55);
+  background: rgba(0,0,0,.65);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   z-index: 500;
@@ -1188,7 +1190,7 @@ var repDisplay = P.get('rep_display') || repName.split(' ')[0];  // nickname
 var repTitle   = P.get('title')       || 'Sales Consultant';
 var repDealer  = P.get('dealer')      || 'Harte Auto Group';
 var repWeb     = P.get('web')         || 'harteautogroup.com';
-var repColor   = P.get('color')       || '#B85C00';
+var repColor   = P.get('color')       || '#D94F00';
 var repPhoto   = P.get('photo')       || '';
 var repPhotoZ  = parseFloat(P.get('photo_zoom') || '1');
 var repPhotoX  = parseFloat(P.get('photo_ox')   || '0');
@@ -1210,15 +1212,15 @@ var hasVehicle = custVeh.length > 0;
 // ═══════════════════════════════════════════════════════════════
 (function applyBrand(){
   var hex = repColor.replace(/[^0-9a-f]/gi,'');
-  if(hex.length !== 6) hex = 'B85C00';
+  if(hex.length !== 6) hex = 'D94F00';
   var r = parseInt(hex.slice(0,2),16);
   var g = parseInt(hex.slice(2,4),16);
   var b = parseInt(hex.slice(4,6),16);
   var root = document.documentElement.style;
   root.setProperty('--brand',    '#'+hex);
-  root.setProperty('--brand-lt', 'rgba('+r+','+g+','+b+',.08)');
-  root.setProperty('--brand-md', 'rgba('+r+','+g+','+b+',.18)');
-  root.setProperty('--brand-glow','rgba('+r+','+g+','+b+',.22)');
+  root.setProperty('--brand-lt', 'rgba('+r+','+g+','+b+',.10)');
+  root.setProperty('--brand-md', 'rgba('+r+','+g+','+b+',.22)');
+  root.setProperty('--brand-glow','rgba('+r+','+g+','+b+',.35)');
 })();
 
 // ═══════════════════════════════════════════════════════════════
