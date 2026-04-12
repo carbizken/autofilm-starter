@@ -4161,7 +4161,7 @@ async function genScript(){
   document.getElementById('aiThinking').classList.add('on');
   document.getElementById('genBtn').disabled=true;
   try{
-    var API_BASE=window.AUTOFILM_API||'https://api.autofilm.io';
+    var API_BASE=window.AUTOVIDEO_API||'https://autovideo.autocurb.io';
     var aiRes=await fetch(API_BASE+'/api/ai-script',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({purpose:p,rep_name:sp,dealer:d,vehicle:v,customer_name:c})
@@ -4585,6 +4585,6 @@ function isIOSBrowser(){
 // Run onboarding check after state is loaded
 obInit();
 </script>
-<script src="/autocurb-switcher.js" data-current="autofilm" data-api="https://api.autofilm.io"></script>
+<script src="/autocurb-switcher.js" data-current="autovideo" data-api="https://autovideo.autocurb.io"></script>
 </body>
 </html>

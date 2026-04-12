@@ -101,10 +101,10 @@ create table if not exists products (
 
 -- Seed the 4 products
 insert into products (id, name, description, icon, base_url, sort_order) values
-  ('autocurb',  'AutoCurb',   'Off-street vehicle acquisition — buy cars from customers, not auctions', '🚗', 'https://autocurb.io',                  0),
-  ('autofilm',  'AutoFilm',   'Personal video messaging — record, send, track customer engagement',     '🎬', 'https://autofilm.autocurb.io',          1),
-  ('cleardeal', 'Clear Deal', 'Window stickers + FTC-compliant addendums with digital signatures',      '📋', 'https://cleardeal.autocurb.io',         2),
-  ('autoframe', 'AutoFrame',  'Vehicle photography — auto background removal and consistent lighting',  '📷', 'https://autoframe.autocurb.io',         3)
+  ('autocurb',  'Autocurb.io', 'Off-street vehicle acquisition — buy cars from customers, not auctions', '🚗', 'https://autocurb.io',                  0),
+  ('cleardeal', 'Clear Deal',  'Window stickers + FTC-compliant addendums with digital signatures',      '📋', 'https://cleardeal.autocurb.io',         1),
+  ('autoframe', 'AutoFrame',   'Vehicle photography — auto background removal and consistent lighting',  '📷', 'https://autoframe.autocurb.io',         2),
+  ('autovideo', 'AutoVideo',   'Personal video messaging + walkarounds + MPI for service department',    '🎬', 'https://autovideo.autocurb.io',         3)
 on conflict (id) do nothing;
 
 -- Subscription bundles — defines pricing tiers
@@ -124,8 +124,8 @@ create table if not exists bundles (
 insert into bundles (id, name, price_monthly, price_annual, product_ids, sort_order) values
   ('starter',      'Starter',      49500,  39500,  '{autocurb,cleardeal}',                          0),
   ('professional', 'Professional', 99500,  79500,  '{autocurb,cleardeal}',                          1),
-  ('growth',       'Growth',       149500, 119500, '{autocurb,autofilm,cleardeal,autoframe}',       2),
-  ('enterprise',   'Enterprise',   249500, 199500, '{autocurb,autofilm,cleardeal,autoframe}',       3)
+  ('growth',       'Growth',       149500, 119500, '{autocurb,cleardeal,autoframe,autovideo}',       2),
+  ('enterprise',   'Enterprise',   249500, 199500, '{autocurb,cleardeal,autoframe,autovideo}',       3)
 on conflict (id) do nothing;
 
 -- Product access per rooftop — which products a tenant can use
@@ -158,7 +158,7 @@ create table if not exists vehicle_files (
   autoframe_photos jsonb default '[]'::jsonb,       -- [{url, angle, created_at}]
   cleardeal_sticker_id text,                        -- link to Clear Deal sticker
   autocurb_lead_id text,                            -- link to AutoCurb acquisition lead
-  autofilm_video_ids text[] default '{}',            -- AutoFilm video short_codes for this VIN
+  autovideo_video_ids text[] default '{}',            -- AutoVideo video short_codes for this VIN
 
   created_at       timestamptz not null default now(),
   updated_at       timestamptz not null default now(),

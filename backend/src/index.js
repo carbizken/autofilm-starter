@@ -19,6 +19,9 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors({
   origin: [
+    'https://autocurb.io',
+    'https://www.autocurb.io',
+    /\.autocurb\.io$/,
     'https://autofilm.io',
     'https://www.autofilm.io',
     /\.autofilm\.io$/,
@@ -46,11 +49,11 @@ app.use('/api/platform', platformRoute);
 app.use('/api/tenant', tenantRoute);
 app.use('/api/onboard', onboardRoute);
 
-// AutoFilm product routes (access-gated)
-app.use('/api/upload', requireProduct('autofilm'), uploadRoute);
-app.use('/api/send', requireProduct('autofilm'), sendRoute);
+// AutoVideo product routes (access-gated)
+app.use('/api/upload', requireProduct('autovideo'), uploadRoute);
+app.use('/api/send', requireProduct('autovideo'), sendRoute);
 app.use('/v', pingRoute);           // public — player pings don't need auth
-app.use('/api/ai-script', requireProduct('autofilm'), aiRoute);
+app.use('/api/ai-script', requireProduct('autovideo'), aiRoute);
 app.use('/api/event', eventRoute);   // public — watch tracking
 
 // 404
@@ -68,6 +71,6 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`[autofilm-api] Running on port ${PORT}`);
-  console.log(`[autofilm-api] Env: ${process.env.NODE_ENV}`);
+  console.log(`[autovideo-api] Running on port ${PORT}`);
+  console.log(`[autovideo-api] Env: ${process.env.NODE_ENV}`);
 });
