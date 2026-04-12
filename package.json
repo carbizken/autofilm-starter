@@ -8,6 +8,7 @@
     "build": "mkdir -p dist && cp -r frontend/* dist/"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.4"
+    "@supabase/supabase-js": "^2.49.4",
+    "vite": "^8.0.8"
   }
 }
