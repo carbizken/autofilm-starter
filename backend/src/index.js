@@ -10,6 +10,8 @@ import eventRoute from './routes/event.js';
 import stripeRoute from './routes/stripe.js';
 import tenantRoute from './routes/tenant.js';
 import onboardRoute from './routes/onboard.js';
+import platformRoute from './routes/platform.js';
+import { requireProduct } from './lib/access.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -39,14 +41,17 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', version: '1.0.0', env: process.env.NODE_ENV });
 });
 
-// Routes
-app.use('/api/upload', uploadRoute);
-app.use('/api/send', sendRoute);
-app.use('/v', pingRoute);
-app.use('/api/ai-script', aiRoute);
-app.use('/api/event', eventRoute);
+// Platform routes (shared across all products)
+app.use('/api/platform', platformRoute);
 app.use('/api/tenant', tenantRoute);
 app.use('/api/onboard', onboardRoute);
+
+// AutoFilm product routes (access-gated)
+app.use('/api/upload', requireProduct('autofilm'), uploadRoute);
+app.use('/api/send', requireProduct('autofilm'), sendRoute);
+app.use('/v', pingRoute);           // public — player pings don't need auth
+app.use('/api/ai-script', requireProduct('autofilm'), aiRoute);
+app.use('/api/event', eventRoute);   // public — watch tracking
 
 // 404
 app.use((req, res) => {

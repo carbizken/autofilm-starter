@@ -42,12 +42,31 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
         const rooftopId = session.metadata?.rooftop_id;
 
         if (rooftopId) {
+          const bundleId = session.metadata?.bundle_id || 'starter';
+
           await supabase.from('rooftops').update({
             stripe_customer_id: customerId,
-            plan: 'standard',
+            plan: bundleId,
             active: true,
           }).eq('id', rooftopId);
-          console.log(`[stripe] Activated rooftop ${rooftopId}`);
+
+          // Grant product access for the purchased bundle
+          const { data: bundle } = await supabase
+            .from('bundles').select('product_ids').eq('id', bundleId).single();
+
+          if (bundle?.product_ids) {
+            const grants = bundle.product_ids.map(pid => ({
+              rooftop_id: rooftopId,
+              product_id: pid,
+              bundle_id: bundleId,
+              granted_at: new Date().toISOString(),
+            }));
+            await supabase.from('product_access')
+              .upsert(grants, { onConflict: 'rooftop_id,product_id' });
+            console.log(`[stripe] Granted ${bundleId} products: ${bundle.product_ids.join(', ')}`);
+          }
+
+          console.log(`[stripe] Activated rooftop ${rooftopId} with ${bundleId}`);
         }
         break;
       }
