@@ -21,10 +21,16 @@ router.post('/', async (req, res) => {
     if (!customer_name)   return res.status(400).json({ error: 'customer_name required' });
     if (!customer_phone)  return res.status(400).json({ error: 'customer_phone required' });
 
-    // 1. Fetch video + rep info from Supabase
+    // Validate phone format (E.164: +1XXXXXXXXXX)
+    const phoneClean = customer_phone.replace(/[\s\-().]/g, '');
+    if (!/^\+1\d{10}$/.test(phoneClean)) {
+      return res.status(400).json({ error: 'customer_phone must be E.164 format (+1XXXXXXXXXX)' });
+    }
+
+    // 1. Fetch video + rep + full rooftop branding from Supabase
     const { data: videoRow, error: videoErr } = await supabase
       .from('videos')
-      .select('*, reps(name, nickname, title, photo_url, rooftops(name))')
+      .select('*, reps(name, nickname, title, photo_url, rooftops(name, brand_color, logo_url, website, trade_url, sms_greeting, sms_signature))')
       .eq('short_code', short_code)
       .single();
 
@@ -33,10 +39,11 @@ router.post('/', async (req, res) => {
     }
 
     const rep = videoRow.reps;
-    const dealerName = rep?.rooftops?.name || 'Your Dealer';
+    const rooftop = rep?.rooftops || {};
+    const dealerName = rooftop.name || 'Your Dealer';
     const repDisplay = rep?.nickname || rep?.name?.split(' ')[0] || 'Your Rep';
 
-    // 2. Build full player URL
+    // 2. Build full player URL — push tenant branding into params
     const params = new URLSearchParams({
       rep:          rep?.name || '',
       rep_display:  repDisplay,
@@ -53,32 +60,46 @@ router.post('/', async (req, res) => {
     if (rep?.photo_url) {
       params.set('photo', rep.photo_url);
     }
+    if (rooftop.brand_color) {
+      params.set('color', rooftop.brand_color);
+    }
+    if (rooftop.logo_url) {
+      params.set('logo', rooftop.logo_url);
+    }
+    if (rooftop.website) {
+      params.set('web', rooftop.website);
+    }
     if (vehicle) {
       params.set('vehicle', vehicle);
     }
-    if (trade_url) {
-      params.set('trade_url', trade_url);
+    // Trade URL: use request param first, then rooftop default
+    const resolvedTradeUrl = trade_url || rooftop.trade_url;
+    if (resolvedTradeUrl) {
+      params.set('trade_url', resolvedTradeUrl);
     }
 
     const playerUrl = `${PLAYER_BASE}?${params.toString()}`;
     const shortUrl  = `${CF_WORKER_URL}/v/${short_code}`;
 
-    // 3. Store in Cloudflare KV
+    // 3. Store in Cloudflare KV FIRST (so link works before SMS arrives)
     await kvPut(`v_${short_code}`, playerUrl);
     console.log(`[send] KV stored: v_${short_code}`);
 
-    // 4. Send Twilio SMS
-    const smsBody = vehicle
-      ? `Hey ${customer_name}, ${repDisplay} at ${dealerName} recorded a personal video about the ${vehicle} for you 🎬\n\nWatch it here: ${shortUrl}`
-      : `Hey ${customer_name}, ${repDisplay} at ${dealerName} recorded a personal video for you 🎬\n\nWatch it here: ${shortUrl}`;
+    // 4. Send Twilio SMS (only after KV confirmed)
+    const greeting = rooftop.sms_greeting
+      || (vehicle
+        ? `Hey ${customer_name}, ${repDisplay} at ${dealerName} recorded a personal video about the ${vehicle} for you 🎬`
+        : `Hey ${customer_name}, ${repDisplay} at ${dealerName} recorded a personal video for you 🎬`);
+    const signature = rooftop.sms_signature || `— ${repDisplay} · ${dealerName}`;
+    const smsBody = `${greeting}\n\nWatch it here: ${shortUrl}\n\n${signature}`;
 
     const message = await twilioClient.messages.create({
       body: smsBody,
       from: TWILIO_FROM,
-      to: customer_phone,
+      to: phoneClean,
     });
 
-    console.log(`[send] SMS sent to ${customer_phone} — SID: ${message.sid}`);
+    console.log(`[send] SMS sent to ${phoneClean} — SID: ${message.sid}`);
 
     // 5. Update Supabase video record
     await supabase.from('videos').update({

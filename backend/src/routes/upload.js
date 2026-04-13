@@ -21,6 +21,16 @@ router.post('/', upload.single('video'), async (req, res) => {
     if (!rep_id) return res.status(400).json({ error: 'rep_id required' });
     if (!rooftop_id) return res.status(400).json({ error: 'rooftop_id required' });
 
+    // Validate rep exists
+    const { data: rep, error: repErr } = await supabase
+      .from('reps').select('id').eq('id', rep_id).single();
+    if (repErr || !rep) return res.status(404).json({ error: 'rep_id not found' });
+
+    // Validate rooftop exists
+    const { data: rooftop, error: rtErr } = await supabase
+      .from('rooftops').select('id').eq('id', rooftop_id).single();
+    if (rtErr || !rooftop) return res.status(404).json({ error: 'rooftop_id not found' });
+
     console.log(`[upload] Starting upload for rep ${rep_id}, ${file.size} bytes`);
 
     // 1. Create Mux direct upload

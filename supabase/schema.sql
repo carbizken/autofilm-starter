@@ -13,6 +13,33 @@ create table if not exists rooftops (
   plan             text not null default 'standard',  -- standard | branded | enterprise
   stripe_customer_id text,
   active           bool not null default true,
+
+  -- Tenant branding (populated during onboarding)
+  logo_url         text,                -- dealer logo image
+  brand_color      text default '#D94F00', -- primary hex color
+  secondary_color  text,                -- optional secondary hex
+  website          text,                -- e.g. harteautogroup.com
+  phone            text,                -- dealer main phone
+  email            text,                -- dealer contact email
+  address          text,                -- physical address
+  city             text,
+  state            text,
+  zip              text,
+
+  -- Product config
+  trade_url        text,                -- custom trade-in URL (e.g. hartecash.com/trade)
+  sms_greeting     text,                -- custom SMS opening line
+  sms_signature    text,                -- custom SMS signature
+
+  -- Onboarding
+  onboarded        bool not null default false,
+  onboarded_at     timestamptz,
+  onboard_step     int not null default 0,  -- tracks progress (0-5)
+
+  -- Cross-platform
+  source           text not null default 'autofilm',  -- autofilm | autocurb | manual
+  autocurb_tenant_id text,              -- linked autocurb.io tenant ID
+
   created_at       timestamptz not null default now()
 );
 
@@ -56,6 +83,89 @@ create table if not exists watch_events (
 );
 
 -- ============================================================
+-- AUTOCURB PLATFORM — MULTI-PRODUCT TABLES
+-- Shared across all products: AutoCurb, AutoFilm, AutoFrame, Clear Deal
+-- ============================================================
+
+-- Product registry — defines the products in the ecosystem
+create table if not exists products (
+  id               text primary key,        -- 'autocurb' | 'autofilm' | 'autoframe' | 'cleardeal'
+  name             text not null,            -- Display name
+  description      text,
+  icon             text,                     -- emoji or SVG path
+  base_url         text not null,            -- https://autofilm.autocurb.io
+  active           bool not null default true,
+  sort_order       int not null default 0,
+  created_at       timestamptz not null default now()
+);
+
+-- Seed the 4 products
+insert into products (id, name, description, icon, base_url, sort_order) values
+  ('autocurb',  'Autocurb.io', 'Off-street vehicle acquisition — buy cars from customers, not auctions', '🚗', 'https://autocurb.io',                  0),
+  ('cleardeal', 'Clear Deal',  'Window stickers + FTC-compliant addendums with digital signatures',      '📋', 'https://cleardeal.autocurb.io',         1),
+  ('autoframe', 'AutoFrame',   'Vehicle photography — auto background removal and consistent lighting',  '📷', 'https://autoframe.autocurb.io',         2),
+  ('autovideo', 'AutoVideo',   'Personal video messaging + walkarounds + MPI for service department',    '🎬', 'https://autovideo.autocurb.io',         3)
+on conflict (id) do nothing;
+
+-- Subscription bundles — defines pricing tiers
+create table if not exists bundles (
+  id               text primary key,        -- 'starter' | 'professional' | 'growth' | 'enterprise'
+  name             text not null,
+  price_monthly    int not null default 0,   -- cents
+  price_annual     int not null default 0,   -- cents (per month equivalent)
+  product_ids      text[] not null,          -- e.g. {'autocurb','cleardeal'}
+  stripe_price_monthly text,                 -- Stripe price ID
+  stripe_price_annual  text,                 -- Stripe price ID
+  sort_order       int not null default 0,
+  created_at       timestamptz not null default now()
+);
+
+-- Seed bundles (matching the architecture plan)
+insert into bundles (id, name, price_monthly, price_annual, product_ids, sort_order) values
+  ('starter',      'Starter',      49500,  39500,  '{autocurb,cleardeal}',                          0),
+  ('professional', 'Professional', 99500,  79500,  '{autocurb,cleardeal}',                          1),
+  ('growth',       'Growth',       149500, 119500, '{autocurb,cleardeal,autoframe,autovideo}',       2),
+  ('enterprise',   'Enterprise',   249500, 199500, '{autocurb,cleardeal,autoframe,autovideo}',       3)
+on conflict (id) do nothing;
+
+-- Product access per rooftop — which products a tenant can use
+create table if not exists product_access (
+  id               uuid primary key default gen_random_uuid(),
+  rooftop_id       uuid references rooftops(id) on delete cascade,
+  product_id       text references products(id) on delete cascade,
+  bundle_id        text references bundles(id),    -- which bundle granted this
+  granted_at       timestamptz not null default now(),
+  expires_at       timestamptz,                    -- null = never expires
+  unique(rooftop_id, product_id)
+);
+
+-- Shared vehicle file — one VIN = one file across ALL products
+-- Photos from AutoFrame, stickers from Clear Deal, leads from AutoCurb,
+-- videos from AutoFilm all link to the same VIN
+create table if not exists vehicle_files (
+  id               uuid primary key default gen_random_uuid(),
+  rooftop_id       uuid references rooftops(id) on delete cascade,
+  vin              text not null,
+  year             int,
+  make             text,
+  model            text,
+  trim             text,
+  exterior_color   text,
+  stock_number     text,
+  status           text default 'active',           -- active | sold | archived
+
+  -- Cross-product references
+  autoframe_photos jsonb default '[]'::jsonb,       -- [{url, angle, created_at}]
+  cleardeal_sticker_id text,                        -- link to Clear Deal sticker
+  autocurb_lead_id text,                            -- link to AutoCurb acquisition lead
+  autovideo_video_ids text[] default '{}',            -- AutoVideo video short_codes for this VIN
+
+  created_at       timestamptz not null default now(),
+  updated_at       timestamptz not null default now(),
+  unique(rooftop_id, vin)
+);
+
+-- ============================================================
 -- INDEXES
 -- ============================================================
 
@@ -67,15 +177,21 @@ create index if not exists watch_events_video_id_idx on watch_events(video_id);
 create index if not exists watch_events_created_idx  on watch_events(created_at desc);
 create index if not exists reps_rooftop_id_idx      on reps(rooftop_id);
 create index if not exists reps_email_idx           on reps(email);
+create index if not exists product_access_rooftop_idx on product_access(rooftop_id);
+create index if not exists product_access_product_idx on product_access(product_id);
+create index if not exists vehicle_files_rooftop_idx  on vehicle_files(rooftop_id);
+create index if not exists vehicle_files_vin_idx      on vehicle_files(vin);
 
 -- ============================================================
 -- ROW LEVEL SECURITY
 -- ============================================================
 
-alter table rooftops    enable row level security;
-alter table reps        enable row level security;
-alter table videos      enable row level security;
-alter table watch_events enable row level security;
+alter table rooftops      enable row level security;
+alter table reps          enable row level security;
+alter table videos        enable row level security;
+alter table watch_events  enable row level security;
+alter table product_access enable row level security;
+alter table vehicle_files  enable row level security;
 
 -- Reps can read/write their own rooftop's data
 -- Service role (backend) bypasses RLS entirely
@@ -108,6 +224,36 @@ create policy "Watch events readable by rep's rooftop"
     select v.id from videos v
     join reps r on r.rooftop_id = v.rooftop_id
     where r.email = auth.jwt()->>'email'
+  ));
+
+-- Products table is publicly readable (no secrets)
+create policy "Products readable by all"
+  on products for select using (true);
+
+-- Product access scoped to own rooftop
+create policy "Product access readable by own rooftop"
+  on product_access for select
+  using (rooftop_id in (
+    select rooftop_id from reps where email = auth.jwt()->>'email'
+  ));
+
+-- Vehicle files scoped to own rooftop
+create policy "Vehicle files readable by own rooftop"
+  on vehicle_files for select
+  using (rooftop_id in (
+    select rooftop_id from reps where email = auth.jwt()->>'email'
+  ));
+
+create policy "Vehicle files writable by own rooftop"
+  on vehicle_files for insert
+  with check (rooftop_id in (
+    select rooftop_id from reps where email = auth.jwt()->>'email'
+  ));
+
+create policy "Vehicle files updatable by own rooftop"
+  on vehicle_files for update
+  using (rooftop_id in (
+    select rooftop_id from reps where email = auth.jwt()->>'email'
   ));
 
 -- ============================================================

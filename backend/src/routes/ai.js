@@ -2,6 +2,24 @@ import express from 'express';
 
 const router = express.Router();
 
+if (!process.env.ANTHROPIC_API_KEY) {
+  console.warn('[ai] WARNING: ANTHROPIC_API_KEY not set — /api/ai-script will fail');
+}
+
+// Simple in-memory rate limiter (per IP, 20 requests/min)
+const rateLimits = new Map();
+function checkRate(ip) {
+  const now = Date.now();
+  const window = 60_000;
+  const max = 20;
+  const hits = rateLimits.get(ip) || [];
+  const recent = hits.filter(t => t > now - window);
+  if (recent.length >= max) return false;
+  recent.push(now);
+  rateLimits.set(ip, recent);
+  return true;
+}
+
 /**
  * POST /api/ai-script
  * Proxy for Anthropic API — keeps the key server-side.
@@ -10,9 +28,17 @@ const router = express.Router();
  */
 router.post('/', async (req, res) => {
   try {
+    const ip = req.headers['x-forwarded-for'] || req.ip;
+    if (!checkRate(ip)) {
+      return res.status(429).json({ error: 'Rate limit exceeded. Try again in a minute.' });
+    }
+
     const { purpose, rep_name, dealer, vehicle, customer_name } = req.body;
 
     if (!purpose) return res.status(400).json({ error: 'purpose required' });
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(503).json({ error: 'AI script generation not configured' });
+    }
 
     const prompts = {
       'internet-lead': `Write a short, natural video script (45-60 seconds when spoken) for ${rep_name} at ${dealer} reaching out to ${customer_name || 'a new internet lead'}${vehicle ? ` about the ${vehicle}` : ''}. Warm, personal, not salesy. End with a clear next step.`,
@@ -39,6 +65,7 @@ router.post('/', async (req, res) => {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 400,
+        system: 'You are an expert automotive sales video script writer. Write natural, conversational scripts that sound like a real person — not a robot. Keep them 45-60 seconds when spoken aloud.',
         messages: [{ role: 'user', content: systemPrompt }],
       }),
     });

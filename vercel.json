@@ -36,6 +36,14 @@
       "dest": "/frontend/hartecash-trade.html"
     },
     {
+      "src": "/onboard",
+      "dest": "/frontend/autofilm-onboard.html"
+    },
+    {
+      "src": "/autocurb-switcher.js",
+      "dest": "/frontend/autocurb-switcher.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/$1"
     }

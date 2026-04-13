@@ -1,3 +1,7 @@
+if (!process.env.CLOUDFLARE_ACCOUNT_ID || !process.env.CLOUDFLARE_KV_NAMESPACE_ID || !process.env.CLOUDFLARE_API_TOKEN) {
+  throw new Error('Missing CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_KV_NAMESPACE_ID, or CLOUDFLARE_API_TOKEN');
+}
+
 /**
  * Write a key-value pair to Cloudflare KV.
  * Used to store short_code → player_url mappings.

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>AutoFilm</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap');
 
 /* =========================================
    DESIGN TOKENS — $10k/year quality bar
@@ -13,38 +13,38 @@
    Design Award principles
    ========================================= */
 :root {
-  /* Core palette — 3 colors, not 8 */
-  --ink:     #09090b;          /* near-black, not pure */
-  --ink2:    #0f0f12;          /* card surface */
-  --ink3:    #161619;          /* raised element */
-  --ink4:    #1e1e22;          /* interactive hover */
+  /* Core palette — HarteCash aligned */
+  --ink:     #0a0a0d;
+  --ink2:    #111116;
+  --ink3:    #18181e;
+  --ink4:    #202028;
   --glass:   rgba(255,255,255,.06);
   --glass2:  rgba(255,255,255,.1);
   --glass3:  rgba(255,255,255,.04);
 
-  --fire:    #ff4500;          /* ONE brand accent */
-  --fire2:   #ff6a2b;          /* lighter for text on dark */
-  --fire3:   rgba(255,69,0,.12);
-  --fire4:   rgba(255,69,0,.06);
+  --fire:    #D94F00;          /* AutoFilm orange */
+  --fire2:   #E85A0A;          /* lighter for text on dark */
+  --fire3:   rgba(217,79,0,.12);
+  --fire4:   rgba(217,79,0,.06);
 
   --white:   #ffffff;
-  --white90: rgba(255,255,255,.9);
-  --white70: rgba(255,255,255,.7);
-  --white40: rgba(255,255,255,.4);
-  --white20: rgba(255,255,255,.2);
-  --white10: rgba(255,255,255,.1);
-  --white06: rgba(255,255,255,.06);
+  --white90: rgba(255,255,255,.95);
+  --white70: rgba(255,255,255,.65);
+  --white40: rgba(255,255,255,.38);
+  --white20: rgba(255,255,255,.18);
+  --white10: rgba(255,255,255,.09);
+  --white06: rgba(255,255,255,.05);
   --white03: rgba(255,255,255,.03);
 
   /* Semantic — used sparingly, never decoratively */
-  --emerald:  #10b981;
+  --emerald:  #22c55e;
   --amber:    #f59e0b;
   --rose:     #f43f5e;
   --sky:      #38bdf8;
 
   /* Typography */
-  --ff:    'Plus Jakarta Sans', -apple-system, sans-serif;
-  --mono:  'JetBrains Mono', monospace;
+  --ff:    'Geist', -apple-system, sans-serif;
+  --mono:  'Geist Mono', monospace;
 
   /* Elevation shadows — layered, physical */
   --shadow-xs: 0 1px 2px rgba(0,0,0,.5);
@@ -4161,17 +4161,18 @@ async function genScript(){
   document.getElementById('aiThinking').classList.add('on');
   document.getElementById('genBtn').disabled=true;
   try{
-    if(S.apiKey&&S.apiKey.indexOf('sk-ant')===0){
-      var res=await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
-          system:'You are an expert automotive sales video script writer. Write short (60-90 words), personalized, genuine-sounding scripts for car dealership salespeople. Use the customer\'s name. End with one clear CTA. Conversational, no corporate speak. Write in first person as '+sp+' from '+d+'.',
-          messages:[{role:'user',content:'Write a '+p+' video script. Customer: '+c+'. Vehicle: '+v+'. Script only.'}]})
-      });
-      if(!res.ok) throw new Error('API '+res.status);
-      var data=await res.json();
-      lastScript=((data.content||[]).map(function(b){ return b.text||''; }).join('')).trim();
+    var API_BASE=window.AUTOVIDEO_API||'https://autovideo.autocurb.io';
+    var aiRes=await fetch(API_BASE+'/api/ai-script',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({purpose:p,rep_name:sp,dealer:d,vehicle:v,customer_name:c})
+    });
+    if(aiRes.ok){
+      var aiData=await aiRes.json();
+      lastScript=(aiData.script||'').trim();
       if(!lastScript) throw new Error('empty');
+    } else if(aiRes.status===429){
+      toast('\u26A0\uFE0F','Rate limited — using built-in script','rgba(255,69,0,.12)');
+      throw new Error('rate-limited');
     } else {
       await new Promise(function(r){ setTimeout(r,1300+Math.random()*500); });
       var fn=FB[p]||FB['Internet Lead Response'];
@@ -4584,5 +4585,6 @@ function isIOSBrowser(){
 // Run onboarding check after state is loaded
 obInit();
 </script>
+<script src="/autocurb-switcher.js" data-current="autovideo" data-api="https://autovideo.autocurb.io"></script>
 </body>
 </html>
