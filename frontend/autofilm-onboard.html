@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Set Up Your Dealership — AutoVideo by AutoCurb</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#0a0a0d;
+  --bg1:#111116;
+  --bg2:#18181e;
+  --bg3:#202028;
+  --b0:rgba(255,255,255,.05);
+  --b1:rgba(255,255,255,.09);
+  --b2:rgba(255,255,255,.16);
+  --t1:rgba(255,255,255,.95);
+  --t2:rgba(255,255,255,.65);
+  --t3:rgba(255,255,255,.38);
+  --t4:rgba(255,255,255,.18);
+  --fire:#D94F00;
+  --fire2:#E85A0A;
+  --firet:rgba(217,79,0,.1);
+  --fireb:rgba(217,79,0,.22);
+  --green:#22c55e;
+  --amber:#f59e0b;
+  --ff:'Geist',-apple-system,sans-serif;
+  --fm:'Geist Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:var(--ff);
+  background:var(--bg);
+  color:var(--t1);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+
+/* ── HEADER ─────────────────────────────────────── */
+.ob-header{
+  padding:20px;text-align:center;
+  border-bottom:1px solid var(--b0);
+}
+.ob-logo{display:inline-flex;align-items:center;gap:8px}
+.ob-mark{
+  width:28px;height:28px;background:var(--fire);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(217,79,0,.35);
+}
+.ob-wordmark{font-size:16px;font-weight:900;letter-spacing:-.3px}
+.ob-wordmark em{color:var(--fire2);font-style:normal}
+
+/* ── PROGRESS ───────────────────────────────────── */
+.ob-progress{
+  display:flex;align-items:center;gap:4px;
+  max-width:540px;margin:20px auto 0;padding:0 20px;
+}
+.ob-prog-step{
+  flex:1;height:3px;border-radius:2px;
+  background:var(--b1);transition:background .3s;
+}
+.ob-prog-step.done{background:var(--fire)}
+.ob-prog-step.active{background:var(--fire);opacity:.6}
+.ob-prog-label{
+  text-align:center;font-size:11px;color:var(--t3);
+  margin-top:8px;max-width:540px;margin-left:auto;margin-right:auto;
+  padding:0 20px;
+}
+
+/* ── HERO ───────────────────────────────────────── */
+.ob-hero{
+  padding:32px 20px 0;max-width:540px;margin:0 auto;text-align:center;
+}
+.ob-hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--fire2);margin-bottom:14px;
+  background:var(--firet);border:1px solid var(--fireb);
+  padding:4px 12px;border-radius:20px;
+}
+.ob-hero h1{
+  font-size:clamp(24px,6vw,32px);font-weight:900;
+  letter-spacing:-.6px;line-height:1.15;margin-bottom:10px;
+}
+.ob-hero h1 em{color:var(--fire2);font-style:normal}
+.ob-hero-sub{
+  font-size:14px;color:var(--t2);line-height:1.6;
+  max-width:400px;margin:0 auto 20px;
+}
+
+/* ── AUTOCURB SYNC BANNER ───────────────────────── */
+.sync-banner{
+  max-width:540px;margin:0 auto;padding:0 20px 16px;
+}
+.sync-card{
+  background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.18);
+  border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;
+  cursor:pointer;transition:background .14s;
+}
+.sync-card:hover{background:rgba(34,197,94,.1)}
+.sync-ico{font-size:20px;flex-shrink:0}
+.sync-txt{flex:1;font-size:13px;color:var(--t2);line-height:1.5}
+.sync-txt strong{color:var(--green);font-weight:700}
+.sync-arrow{color:var(--green);font-size:14px;flex-shrink:0}
+
+/* ── FORM ───────────────────────────────────────── */
+.ob-form-wrap{
+  max-width:540px;margin:0 auto;padding:0 20px 60px;
+}
+.ob-form-card{
+  background:var(--bg1);border:1px solid var(--b1);border-radius:20px;
+  overflow:hidden;
+}
+.ob-section{
+  padding:20px 22px;border-bottom:1px solid var(--b0);
+}
+.ob-section:last-child{border-bottom:none}
+.ob-section.hidden{display:none}
+.fs-hdr{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+.fs-num{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--fire);display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;color:#fff;flex-shrink:0;
+}
+.fs-title{font-size:13px;font-weight:700}
+.fs-sub{font-size:11px;color:var(--t3);margin-top:1px}
+
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field-label{
+  font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--t3);margin-bottom:6px;display:block;
+}
+.field-inp{
+  width:100%;padding:11px 14px;
+  background:var(--bg2);border:1px solid var(--b1);border-radius:10px;
+  color:var(--t1);font-size:14px;font-family:var(--ff);
+  outline:none;transition:border-color .15s;
+}
+.field-inp:focus{border-color:var(--fire2)}
+.field-inp::placeholder{color:var(--t4)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}
+
+/* Color picker */
+.color-row{display:flex;align-items:center;gap:12px}
+.color-swatch{
+  width:44px;height:44px;border-radius:10px;border:2px solid var(--b2);
+  cursor:pointer;flex-shrink:0;overflow:hidden;position:relative;
+}
+.color-swatch input[type=color]{
+  position:absolute;inset:-8px;width:calc(100% + 16px);height:calc(100% + 16px);
+  border:none;cursor:pointer;
+}
+.color-preview{
+  flex:1;font-size:13px;font-family:var(--fm);color:var(--t2);
+}
+
+/* ── BUTTONS ────────────────────────────────────── */
+.ob-btn-row{padding:20px 22px;display:flex;gap:10px}
+.ob-btn-back{
+  padding:14px 20px;border-radius:12px;border:1px solid var(--b1);
+  background:transparent;color:var(--t2);font-size:14px;font-weight:600;
+  font-family:var(--ff);cursor:pointer;transition:all .14s;
+}
+.ob-btn-back:hover{border-color:var(--b2);color:var(--t1)}
+.ob-btn-next{
+  flex:1;padding:14px 20px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,var(--fire),var(--fire2));
+  color:#fff;font-size:14px;font-weight:800;font-family:var(--ff);
+  cursor:pointer;letter-spacing:-.2px;
+  box-shadow:0 4px 16px rgba(217,79,0,.3);
+  transition:all .14s;
+}
+.ob-btn-next:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(217,79,0,.4)}
+.ob-btn-next:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* ── SUCCESS STATE ──────────────────────────────── */
+#successState{display:none;padding:48px 20px;text-align:center;max-width:540px;margin:0 auto}
+.succ-ring{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--fire),var(--fire2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;margin:0 auto 20px;
+  box-shadow:0 8px 32px rgba(217,79,0,.4);
+}
+.succ-title{font-size:26px;font-weight:900;letter-spacing:-.5px;margin-bottom:8px}
+.succ-sub{font-size:15px;color:var(--t2);line-height:1.6;max-width:360px;margin:0 auto 28px}
+.succ-actions{display:flex;flex-direction:column;gap:10px;max-width:320px;margin:0 auto}
+.succ-btn{
+  padding:14px 20px;border-radius:12px;border:none;
+  font-size:14px;font-weight:700;font-family:var(--ff);
+  cursor:pointer;transition:all .14s;text-decoration:none;text-align:center;
+}
+.succ-btn.primary{
+  background:linear-gradient(135deg,var(--fire),var(--fire2));color:#fff;
+  box-shadow:0 4px 16px rgba(217,79,0,.3);
+}
+.succ-btn.secondary{background:var(--bg2);border:1px solid var(--b1);color:var(--t2)}
+
+/* ── TOAST ──────────────────────────────────────── */
+.ob-toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--bg2);border:1px solid var(--b1);border-radius:10px;
+  padding:10px 18px;font-size:13px;font-weight:600;color:var(--t1);
+  box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:1000;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;
+}
+.ob-toast.show{transform:translateX(-50%) translateY(0)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.fade-up{animation:fadeUp .3s ease both}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────── -->
+<div class="ob-header">
+  <div class="ob-logo">
+    <div class="ob-mark">
+      <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M1.5 10.5L7 2 12.5 10.5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="ob-wordmark">Auto<em>Video</em></div>
+  </div>
+</div>
+
+<!-- ── PROGRESS BAR ───────────────────────────────── -->
+<div class="ob-progress" id="progressBar">
+  <div class="ob-prog-step active" id="prog0"></div>
+  <div class="ob-prog-step" id="prog1"></div>
+  <div class="ob-prog-step" id="prog2"></div>
+  <div class="ob-prog-step" id="prog3"></div>
+  <div class="ob-prog-step" id="prog4"></div>
+</div>
+<div class="ob-prog-label" id="progLabel">Step 1 of 5 — Dealership Name</div>
+
+<!-- ── HERO ────────────────────────────────────────── -->
+<div class="ob-hero fade-up">
+  <div class="ob-hero-badge">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1l1.5 3 3.3.5-2.4 2.3.6 3.3L6 8.6 3 10.1l.6-3.3L1.2 4.5l3.3-.5z" fill="currentColor"/></svg>
+    AutoCurb Platform · Onboarding
+  </div>
+  <h1 id="heroTitle">Set Up <em>Your Dealership</em></h1>
+  <p class="ob-hero-sub" id="heroSub">5 minutes to go live. Your branding, reps, and settings push to every product automatically.</p>
+</div>
+
+<!-- ── AUTOCURB SYNC ──────────────────────────────── -->
+<div class="sync-banner" id="syncBanner">
+  <div class="sync-card" onclick="showSyncModal()">
+    <div class="sync-ico">🔗</div>
+    <div class="sync-txt">
+      <strong>Already on Autocurb.io?</strong> Pull your dealership info automatically — skip the form.
+    </div>
+    <div class="sync-arrow">→</div>
+  </div>
+</div>
+
+<!-- ── FORM ────────────────────────────────────────── -->
+<div class="ob-form-wrap" id="formState">
+  <div class="ob-form-card fade-up">
+
+    <!-- Step 0: Dealer Name -->
+    <div class="ob-section" id="step0">
+      <div class="fs-hdr">
+        <div class="fs-num">1</div>
+        <div>
+          <div class="fs-title">Dealership Name</div>
+          <div class="fs-sub">Your store's legal or display name</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Dealership Name</label>
+        <input class="field-inp" id="fName" type="text" placeholder="Harte Auto Group" autocomplete="organization">
+      </div>
+      <div class="field">
+        <label class="field-label">Dealer Group (optional)</label>
+        <input class="field-inp" id="fGroup" type="text" placeholder="Harte Automotive">
+      </div>
+    </div>
+
+    <!-- Step 1: Business Info -->
+    <div class="ob-section hidden" id="step1">
+      <div class="fs-hdr">
+        <div class="fs-num">2</div>
+        <div>
+          <div class="fs-title">Business Information</div>
+          <div class="fs-sub">Contact details + location</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Website</label>
+        <input class="field-inp" id="fWeb" type="url" placeholder="harteautogroup.com">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label class="field-label">Phone</label>
+          <input class="field-inp" id="fPhone" type="tel" placeholder="(203) 555-1234">
+        </div>
+        <div class="field">
+          <label class="field-label">Email</label>
+          <input class="field-inp" id="fEmail" type="email" placeholder="info@dealer.com">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Street Address</label>
+        <input class="field-inp" id="fAddr" type="text" placeholder="123 Main St">
+      </div>
+      <div class="row3">
+        <div class="field">
+          <label class="field-label">City</label>
+          <input class="field-inp" id="fCity" type="text" placeholder="Hartford">
+        </div>
+        <div class="field">
+          <label class="field-label">State</label>
+          <input class="field-inp" id="fState" type="text" placeholder="CT" maxlength="2">
+        </div>
+        <div class="field">
+          <label class="field-label">ZIP</label>
+          <input class="field-inp" id="fZip" type="text" placeholder="06103" maxlength="10">
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Branding -->
+    <div class="ob-section hidden" id="step2">
+      <div class="fs-hdr">
+        <div class="fs-num">3</div>
+        <div>
+          <div class="fs-title">Your Brand</div>
+          <div class="fs-sub">Logo + colors push to every customer touchpoint</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Logo URL (optional)</label>
+        <input class="field-inp" id="fLogo" type="url" placeholder="https://yourdomain.com/logo.png">
+      </div>
+      <div class="field">
+        <label class="field-label">Primary Brand Color</label>
+        <div class="color-row">
+          <div class="color-swatch" id="colorSwatch" style="background:#D94F00">
+            <input type="color" id="fColor" value="#D94F00" oninput="updateColor(this.value)">
+          </div>
+          <div class="color-preview" id="colorHex">#D94F00</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Trade-In URL (optional)</label>
+        <input class="field-inp" id="fTrade" type="url" placeholder="https://hartecash.com/trade">
+        <div style="font-size:10px;color:var(--t4);margin-top:4px">Customers see a trade-in CTA on the video player</div>
+      </div>
+    </div>
+
+    <!-- Step 3: Product Config -->
+    <div class="ob-section hidden" id="step3">
+      <div class="fs-hdr">
+        <div class="fs-num">4</div>
+        <div>
+          <div class="fs-title">SMS Messaging</div>
+          <div class="fs-sub">Customize how video links are sent to customers</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">SMS Greeting (optional)</label>
+        <input class="field-inp" id="fSmsGreet" type="text" placeholder="Hey {customer}, {rep} at {dealer} recorded a video for you 🎬">
+        <div style="font-size:10px;color:var(--t4);margin-top:4px">Use {customer}, {rep}, {dealer}, {vehicle} as placeholders</div>
+      </div>
+      <div class="field">
+        <label class="field-label">SMS Signature (optional)</label>
+        <input class="field-inp" id="fSmsSig" type="text" placeholder="— {rep} · {dealer}">
+      </div>
+    </div>
+
+    <!-- Step 4: First Rep -->
+    <div class="ob-section hidden" id="step4">
+      <div class="fs-hdr">
+        <div class="fs-num">5</div>
+        <div>
+          <div class="fs-title">Your First Rep</div>
+          <div class="fs-sub">Add more reps anytime from Settings</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Full Name</label>
+        <input class="field-inp" id="fRepName" type="text" placeholder="Ken Criscione" autocomplete="name">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label class="field-label">Nickname (optional)</label>
+          <input class="field-inp" id="fRepNick" type="text" placeholder="Kenny">
+        </div>
+        <div class="field">
+          <label class="field-label">Title</label>
+          <input class="field-inp" id="fRepTitle" type="text" placeholder="Sales Consultant" value="Sales Consultant">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Email</label>
+        <input class="field-inp" id="fRepEmail" type="email" placeholder="ken@dealer.com" autocomplete="email">
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="ob-btn-row" id="btnRow">
+      <button class="ob-btn-back" id="backBtn" onclick="goBack()" style="display:none">Back</button>
+      <button class="ob-btn-next" id="nextBtn" onclick="goNext()">Continue</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── SUCCESS ────────────────────────────────────── -->
+<div id="successState">
+  <div class="succ-ring">🎬</div>
+  <div class="succ-title">You're Live!</div>
+  <div class="succ-sub" id="succSub">Your dealership is set up and ready to send personal videos to customers.</div>
+  <div class="succ-actions">
+    <a class="succ-btn primary" href="/app">Open AutoVideo →</a>
+    <a class="succ-btn secondary" href="/command">Go to Command Center</a>
+  </div>
+</div>
+
+<!-- ── TOAST ──────────────────────────────────────── -->
+<div class="ob-toast" id="toastEl"></div>
+
+<script>
+var API_BASE = window.AUTOVIDEO_API || 'https://autovideo.autocurb.io';
+var currentStep = 0;
+var totalSteps = 5;
+var rooftopId = null;
+
+var stepLabels = [
+  'Dealership Name',
+  'Business Information',
+  'Branding',
+  'SMS Messaging',
+  'First Rep'
+];
+
+function updateProgress() {
+  for (var i = 0; i < totalSteps; i++) {
+    var el = document.getElementById('prog' + i);
+    el.className = 'ob-prog-step';
+    if (i < currentStep) el.classList.add('done');
+    if (i === currentStep) el.classList.add('active');
+  }
+  document.getElementById('progLabel').textContent =
+    'Step ' + (currentStep + 1) + ' of ' + totalSteps + ' — ' + stepLabels[currentStep];
+
+  document.getElementById('backBtn').style.display = currentStep > 0 ? '' : 'none';
+  document.getElementById('nextBtn').textContent = currentStep === totalSteps - 1 ? 'Finish Setup' : 'Continue';
+}
+
+function showStep(n) {
+  for (var i = 0; i < totalSteps; i++) {
+    var s = document.getElementById('step' + i);
+    if (s) s.classList.toggle('hidden', i !== n);
+  }
+  currentStep = n;
+  updateProgress();
+
+  // Hide sync banner after step 0
+  if (n > 0) document.getElementById('syncBanner').style.display = 'none';
+
+  // Update hero text per step
+  var titles = [
+    'Set Up <em>Your Dealership</em>',
+    'Where Are <em>You Located?</em>',
+    'Make It <em>Yours</em>',
+    'Customize <em>Your Messages</em>',
+    'Add <em>Your First Rep</em>'
+  ];
+  var subs = [
+    '5 minutes to go live. Your branding, reps, and settings push to every product automatically.',
+    'This info appears on customer-facing pages and SMS messages.',
+    'Your logo and brand color propagate to every video player, SMS, and landing page.',
+    'Leave blank for smart defaults. Customize anytime from Settings.',
+    'This person gets login access and can start recording videos immediately.'
+  ];
+  document.getElementById('heroTitle').innerHTML = titles[n] || titles[0];
+  document.getElementById('heroSub').textContent = subs[n] || subs[0];
+}
+
+async function goNext() {
+  var btn = document.getElementById('nextBtn');
+  btn.disabled = true;
+
+  try {
+    switch (currentStep) {
+      case 0: {
+        var name = (document.getElementById('fName').value || '').trim();
+        if (!name) { toast('Dealership name is required'); btn.disabled = false; return; }
+        var res = await apiCall('/api/onboard', {
+          step: 0,
+          data: { name: name, dealer_group: document.getElementById('fGroup').value.trim() || null }
+        });
+        rooftopId = res.rooftop_id;
+        try { localStorage.setItem('autocurb_rooftop_id', rooftopId); } catch(e) {}
+        showStep(1);
+        break;
+      }
+      case 1: {
+        await apiCall('/api/onboard', {
+          step: 1,
+          data: {
+            rooftop_id: rooftopId,
+            website: document.getElementById('fWeb').value.trim() || null,
+            phone: document.getElementById('fPhone').value.trim() || null,
+            email: document.getElementById('fEmail').value.trim() || null,
+            address: document.getElementById('fAddr').value.trim() || null,
+            city: document.getElementById('fCity').value.trim() || null,
+            state: document.getElementById('fState').value.trim() || null,
+            zip: document.getElementById('fZip').value.trim() || null,
+          }
+        });
+        showStep(2);
+        break;
+      }
+      case 2: {
+        await apiCall('/api/onboard', {
+          step: 2,
+          data: {
+            rooftop_id: rooftopId,
+            brand_color: document.getElementById('fColor').value || '#D94F00',
+            logo_url: document.getElementById('fLogo').value.trim() || null,
+          }
+        });
+        // Also store trade_url via step 3
+        showStep(3);
+        break;
+      }
+      case 3: {
+        await apiCall('/api/onboard', {
+          step: 3,
+          data: {
+            rooftop_id: rooftopId,
+            trade_url: document.getElementById('fTrade')?.value.trim() || null,
+            sms_greeting: document.getElementById('fSmsGreet').value.trim() || null,
+            sms_signature: document.getElementById('fSmsSig').value.trim() || null,
+          }
+        });
+        showStep(4);
+        break;
+      }
+      case 4: {
+        var repName = (document.getElementById('fRepName').value || '').trim();
+        var repEmail = (document.getElementById('fRepEmail').value || '').trim();
+        if (!repName || !repEmail) { toast('Rep name and email are required'); btn.disabled = false; return; }
+        await apiCall('/api/onboard', {
+          step: 4,
+          data: {
+            rooftop_id: rooftopId,
+            rep_name: repName,
+            rep_nickname: document.getElementById('fRepNick').value.trim() || null,
+            rep_title: document.getElementById('fRepTitle').value.trim() || 'Sales Consultant',
+            rep_email: repEmail,
+          }
+        });
+        // Mark complete
+        await apiCall('/api/onboard', { step: 5, data: { rooftop_id: rooftopId } });
+        showSuccess();
+        break;
+      }
+    }
+  } catch (err) {
+    toast('Error: ' + (err.message || 'Something went wrong'));
+  }
+  btn.disabled = false;
+}
+
+function goBack() {
+  if (currentStep > 0) showStep(currentStep - 1);
+}
+
+function showSuccess() {
+  document.getElementById('formState').style.display = 'none';
+  document.getElementById('syncBanner').style.display = 'none';
+  document.querySelector('.ob-hero').style.display = 'none';
+  document.querySelector('.ob-progress').style.display = 'none';
+  document.querySelector('.ob-prog-label').style.display = 'none';
+  document.getElementById('successState').style.display = 'block';
+  var name = document.getElementById('fName').value.trim();
+  document.getElementById('succSub').textContent =
+    name + ' is set up and ready to send personal videos to customers.';
+}
+
+async function showSyncModal() {
+  var id = prompt('Enter your Autocurb.io tenant ID:');
+  if (!id) return;
+  try {
+    var res = await apiCall('/api/onboard/sync-autocurb', { autocurb_tenant_id: id.trim() });
+    if (res.rooftop_id) {
+      rooftopId = res.rooftop_id;
+      try { localStorage.setItem('autocurb_rooftop_id', rooftopId); } catch(e) {}
+      toast('Synced ' + (res.name || 'dealership') + ' from Autocurb.io!');
+      if (res.already_synced || res.synced) {
+        showSuccess();
+      }
+    }
+  } catch (err) {
+    toast('Sync failed: ' + (err.message || 'Check your tenant ID'));
+  }
+}
+
+function updateColor(hex) {
+  document.getElementById('colorSwatch').style.background = hex;
+  document.getElementById('colorHex').textContent = hex.toUpperCase();
+}
+
+async function apiCall(path, body) {
+  var res = await fetch(API_BASE + path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  var data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function toast(msg) {
+  var el = document.getElementById('toastEl');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 3000);
+}
+
+// Init
+updateProgress();
+</script>
+</body>
+</html>

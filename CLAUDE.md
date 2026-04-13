@@ -1,17 +1,32 @@
-# AutoFilm — Claude Code Context
+# AutoVideo — Claude Code Context
 
-This file gives Claude Code full context to build the AutoFilm backend autonomously.
-Place this file in the project root. Claude Code reads it at session start.
+This file gives Claude Code full context for the AutoVideo product.
+AutoVideo is part of the **AutoCurb Platform** (Atlassian model — one login, app switcher, shared data).
 
 ---
 
-## What this project is
+## The AutoCurb Platform (4 products)
 
-AutoFilm is a dealership video messaging SaaS. Sales reps record short personal videos
-on mobile, send them via SMS, customers watch on a branded player page, and reps get
-real-time push notifications when their video is opened.
+| Product | ID | URL | What it does |
+|---|---|---|---|
+| Autocurb.io | `autocurb` | autocurb.io | Off-street vehicle acquisition |
+| Clear Deal | `cleardeal` | cleardeal.autocurb.io | Window stickers + FTC compliance |
+| AutoFrame | `autoframe` | autoframe.autocurb.io | Vehicle photography + background removal |
+| **AutoVideo** | `autovideo` | autovideo.autocurb.io | **This product** — video messaging + walkarounds + MPI |
 
-**Pricing:** $299/rooftop/month, unlimited users, full product.
+All products share: Supabase auth, tenant/rooftop config, vehicle files (one VIN = one record),
+app switcher component, and Stripe billing with bundle pricing.
+
+---
+
+## What AutoVideo does
+
+Sales reps record short personal videos on mobile, send them via SMS, customers watch
+on a branded player page, and reps get real-time push notifications when their video is opened.
+Also used for MPI videos in the service department.
+
+**Pricing:** Included in Growth ($1,495/mo) and Enterprise ($2,495/mo) bundles.
+Free for any dealer who subscribes to Autocurb.io at Starter level or above.
 
 ---
 
